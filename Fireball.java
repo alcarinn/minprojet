@@ -10,14 +10,17 @@ public class Fireball extends Actor{
 	private Vector position;
 	private Vector velocity;
 	public final double SIZE = 0.4;
+	private Actor owner;
 	
-	public Fireball(World world, Vector position, Vector velocity){
-		super(world);
-		this.position=position;
-		this.velocity=velocity;
+	public Fireball(Vector position, Vector velocity, Actor owner){
 		if (position == null && velocity == null){
 			throw new NullPointerException() ;
 			}
+		
+		this.position=position;
+		this.velocity=velocity;
+		this.owner=owner;
+		
 	}
 
 	@Override
@@ -25,6 +28,7 @@ public class Fireball extends Actor{
 		// TODO Auto-generated method stub
 		return 666;
 	}
+	
 	@Override
 	public void update(Input input) {
 		super.update(input);
@@ -47,7 +51,7 @@ public class Fireball extends Actor{
 	public void draw(Input input, Output output) {
 		// TODO Auto-generated method stub
 		super.draw(input, output);
-		Sprite sprite = getWorld().getLoader().getSprite("fireball");
+		Sprite sprite = getSprite("fireball");
 		if (sprite == null){
             throw new NullPointerException();
 	} else {
@@ -58,6 +62,10 @@ public class Fireball extends Actor{
 	@Override
 	public void interact(Actor other) {
 		super.interact(other) ;
+		if (!(other.equals(owner)) && other.getBox ().isColliding(getBox ())) {
+			if (other.hurt(this , Damage.FIRE , 1.0, getPosition ()))
+				getWorld().unregister(this);
+			}
 			if (other.isSolid()) {
 				Vector delta = other.getBox().getCollision(position) ;
 				if (delta != null) {

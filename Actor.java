@@ -15,10 +15,7 @@ public abstract class Actor implements Comparable<Actor> {
 	private World world;
 	// TO BE COMPLETED
 
-	public Actor(World world) {
-		this.world = world;
-	}
-
+	
 	public void preUpdate(Input input) {
 	}
 
@@ -79,5 +76,10 @@ public abstract class Actor implements Comparable<Actor> {
 		return world.getLoader().getSprite(name);
 
 	}
+	
+	public boolean hurt(Actor instigator , Damage type , double
+			amount , Vector location) {
+			return false ;
+			}
 
 }

@@ -26,8 +26,9 @@ public class Simulator implements World {
     private List<Actor> registered;
     private List<Actor> unregistered;
     private SortedCollection<Actor> actors;
-    private Box box1;
-    private Box box2;
+    private Level next;
+    private boolean	transition;
+
     
   
     /**
@@ -46,11 +47,8 @@ public class Simulator implements World {
         registered = new ArrayList<Actor>();
         unregistered = new ArrayList<Actor>();
         actors = new SortedCollection<Actor>();
-       
-        register(new Block (this, new Box(new Vector(-4, -1), new Vector(4, 0)), loader.getSprite("box.empty") ));
-        register(new Block (this, new Box(new Vector(-2,0), new Vector(-1,1)), loader.getSprite("box.empty") ));
-        register(new Fireball (this, new Vector(3,2), new Vector(-3,5)));
-      
+        next = null;
+        transition = true;
 	}
 	
     /**
@@ -63,20 +61,13 @@ public class Simulator implements World {
         
       // TO BE COMPLETED
 		
-		double factor = 0.001;
+		double factor = 0.015;
 		currentCenter = currentCenter.mul(1.0 - factor).add(expectedCenter.mul(factor)); 
 		currentRadius = currentRadius * (1.0 - factor) + expectedRadius * factor;
 		
 		View view = new View(input, output);
 		
 		view.setTarget(currentCenter, currentRadius);
-		
-		
-		if (view.getMouseButton(1).isPressed()) 
-			setView(view.getMouseLocation(), 10.0);
-		
-		for (Actor a : actors) 
-			a.register(this);
 		
 		//PreUpdate
 		for (Actor a : actors) 
@@ -99,18 +90,21 @@ public class Simulator implements World {
 		for (int i = 0; i < registered.size(); ++i) { 
 			Actor actor = registered.get(i);
 			if (!actors.contains(actor)) {
+				actor.register(this);
 				actors.add(actor); 
 			}
 		} 
 		registered.clear();
 		
-		for (Actor a : actors) 
-			a.unregister();
+		
+			
 		
 		// Remove unregistered actors
 		for (int i = 0; i < unregistered.size(); ++i) { 
 			Actor actor = unregistered.get(i); 
+			actor.unregister();
 			actors.remove(actor);
+			
 		} 
 		unregistered.clear();
 		
@@ -119,6 +113,24 @@ public class Simulator implements World {
 		//PostUpdate
 		for (Actor a : actors) 
 			a.postUpdate(view);
+		
+		// si un acteur a mis transition à true pour demander le passage
+		// à un autre niveau :
+		if (transition) {
+			if (next == null) {
+				next = Level.createDefaultLevel () ;
+		}
+		// si un acteur a appelé setNextLevel , next ne sera pas null :
+		Level level = next ;
+		transition = false ;
+		next = null ;
+		actors.clear () ;
+		registered.clear () ;
+		// tous les anciens acteurs sont désenregistrés ,
+		// y compris le Level précédent :
+		unregistered.clear () ;
+		register(level) ;
+		}
 	}
 	
 	
@@ -143,9 +155,22 @@ public class Simulator implements World {
 
 	@Override
 	public void register(Actor actor) {
-	registered.add(actor); }
+		registered.add(actor); 
+	}
 	
 	@Override
 	public void unregister(Actor actor) {
-	unregistered.add(actor); }
+		unregistered.add(actor); 
+	}
+
+	@Override
+	public void nextLevel() {
+		transition = true;		
+	}
+
+	@Override
+	public void setNextLevel(Level level) {
+		next=level;
+		
+	}
 }

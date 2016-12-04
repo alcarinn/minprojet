@@ -11,13 +11,13 @@ import platform.util.Output;
  */
 public class Block extends Actor {
 	
-	private Box boxBlock;
-	private Sprite spriteBlock;
+	private Box box;
+	private Sprite sprite;
 	
-	public Block (World world, Box boxBlock, Sprite spriteBlock){
-		super(world);
-		this.boxBlock=boxBlock;
-		this.spriteBlock=spriteBlock;
+	public Block (Box box, Sprite sprite){
+		
+		this.box=box;
+		this.sprite=sprite;
 	}
 	
 	@Override
@@ -29,10 +29,10 @@ public class Block extends Actor {
 	@Override
 	public void draw(Input input, Output output){
 		super.draw(input, output);
-		if (spriteBlock == null){
+		if (sprite == null){
 	            throw new NullPointerException();
 		} else {
-			output.drawSprite(spriteBlock, boxBlock);
+			output.drawSprite(sprite, box);
 		}
 	}
 	
@@ -51,14 +51,20 @@ public class Block extends Actor {
 	@Override
 	public Box getBox() {
 		// TODO Auto-generated method stub
-		return super.getBox();
+		return box;
 	}
 	
 	public void interact(Actor other) {
 		super.interact(other) ;
 		
 	}
-			
+	
+	@Override
+	public boolean hurt(Actor instigator, Damage type, double amount, Vector location) {
+		// TODO Auto-generated method stub
+		super.hurt(instigator, type, amount, location);
+		return true;
+	}
 			
 	}
 
